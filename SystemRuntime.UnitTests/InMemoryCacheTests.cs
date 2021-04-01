@@ -108,6 +108,41 @@ namespace PubComp.Caching.SystemRuntime.UnitTests
         }
 
         [TestMethod]
+        public void TestInMemoryCacheEmpty()
+        {
+            var cache = new InMemoryCache("cache1", new TimeSpan(0, 2, 0));
+
+            Assert.IsTrue(cache.IsEmpty);
+        }
+
+        [TestMethod]
+        public void TestInMemoryCacheNotEmpty()
+        {
+            var cache = new InMemoryCache("cache1", new TimeSpan(0, 2, 0));
+            cache.Set("key", "value");
+
+            Assert.IsFalse(cache.IsEmpty);
+        }
+
+        [TestMethod]
+        public void TestInMemoryCacheEmptyUntilLoadingCompleted()
+        {
+            var cache = new InMemoryCache("cache1", new TimeSpan(0, 2, 0));
+
+            Func<Task<string>> getter = async () => { await Task.Delay(2000); return "test"; };
+            Assert.IsTrue(cache.IsEmpty);
+            
+
+            Task<string> getItemTask = cache.GetAsync("key", getter);
+            Assert.IsTrue(cache.IsEmpty);
+
+            string result = getItemTask.ConfigureAwait(false).GetAwaiter().GetResult();
+            Assert.IsFalse(cache.IsEmpty);
+
+            Assert.AreEqual("test", result);
+        }
+
+        [TestMethod]
         public void TestInMemoryCacheObjectMutated()
         {
             var cache = new InMemoryCache("cache1", new TimeSpan(0, 2, 0));

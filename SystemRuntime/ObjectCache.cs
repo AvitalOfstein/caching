@@ -42,6 +42,8 @@ namespace PubComp.Caching.SystemRuntime
 
         protected System.Runtime.Caching.ObjectCache InnerCache { get { return this.innerCache; } }
 
+        public bool IsEmpty { get { return this.innerCache.GetCount() == 0; } }
+
         protected InMemoryPolicy Policy { get { return this.policy; } }
         
         public bool TryGet<TValue>(string key, out TValue value)
